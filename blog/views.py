@@ -33,7 +33,7 @@ def get_likes_count(post):
 
 
 def index(request):
-    arranged_posts = sorted(Post.objects.annotate(likes_count=Count('likes')), key=get_likes_count, reverse=True)
+    arranged_posts = Post.objects.annotate(likes_count=Count('likes')).order_by('-likes_count')
 
     most_popular_posts = arranged_posts[:5]  # TODO. Как это посчитать?
 
