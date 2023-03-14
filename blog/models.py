@@ -31,7 +31,7 @@ class PostQuerySet(models.QuerySet):
         most_popular_posts_ids = [post.id for post in self]
         posts_with_comments = Post \
             .objects.filter(id__in=most_popular_posts_ids) \
-            .annotate(comments_count=Count('comment'))
+            .annotate(comments_count=Count('comments'))
         ids_and_comments = posts_with_comments \
             .values_list('id', 'comments_count')
         count_for_id = dict(ids_and_comments)
@@ -50,6 +50,7 @@ class Post(models.Model):
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='posts',
         verbose_name='Автор',
         limit_choices_to={'is_staff': True})
     likes = models.ManyToManyField(
@@ -103,10 +104,12 @@ class Comment(models.Model):
     post = models.ForeignKey(
         'Post',
         on_delete=models.CASCADE,
+        related_name='comments',
         verbose_name='Пост, к которому написан')
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
+        related_name='comments',
         verbose_name='Автор')
 
     text = models.TextField('Текст комментария')
