@@ -5,7 +5,6 @@ from blog.models import Post, Tag
 
 
 def serialize_post_optimized(post):
-    post.tags.prefetch_related('posts')
     return {
         'title': post.title,
         'teaser_text': post.text[:200],
