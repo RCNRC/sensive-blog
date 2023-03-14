@@ -5,7 +5,7 @@ from django.db.models import Count
 
 
 class TagQuerySet(models.QuerySet):
-    
+
     def popular(self):
         popular_tags = Tag.objects \
             .annotate(posts_count=Count('posts')).order_by('-posts_count')
@@ -18,12 +18,12 @@ class PostQuerySet(models.QuerySet):
         posts_at_year = self \
             .filter(published_at__year=year).order_by('published_at')
         return posts_at_year
-    
+
     def popular(self):
         most_popular_posts = self \
             .annotate(likes_count=Count('likes')).order_by('-likes_count')
         return most_popular_posts
-    
+
     def fetch_with_comments_count(self):
         ''' Добавляет постам аттрибут количества комментариев.
         Полезен при выборке некоторого числа постов.
@@ -62,22 +62,29 @@ class Post(models.Model):
         related_name='posts',
         verbose_name='Теги')
 
+    objects = PostQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-published_at']
+        verbose_name = 'пост'
+        verbose_name_plural = 'посты'
+    
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return reverse('post_detail', args={'slug': self.slug})
 
-    class Meta:
-        ordering = ['-published_at']
-        verbose_name = 'пост'
-        verbose_name_plural = 'посты'
-
-    objects = PostQuerySet.as_manager()
-
 
 class Tag(models.Model):
     title = models.CharField('Тег', max_length=20, unique=True)
+    
+    objects = TagQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = 'тег'
+        verbose_name_plural = 'теги'
 
     def __str__(self):
         return self.title
@@ -90,13 +97,6 @@ class Tag(models.Model):
             'tag_filter',
             args={'tag_title': self.slug}
         )
-
-    class Meta:
-        ordering = ['title']
-        verbose_name = 'тег'
-        verbose_name_plural = 'теги'
-
-    objects = TagQuerySet.as_manager()
 
 
 class Comment(models.Model):
@@ -112,10 +112,10 @@ class Comment(models.Model):
     text = models.TextField('Текст комментария')
     published_at = models.DateTimeField('Дата и время публикации')
 
-    def __str__(self):
-        return f'{self.author.username} under {self.post.title}'
-
     class Meta:
         ordering = ['published_at']
         verbose_name = 'комментарий'
         verbose_name_plural = 'комментарии'
+
+    def __str__(self):
+        return f'{self.author.username} under {self.post.title}'
