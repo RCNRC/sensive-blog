@@ -27,7 +27,6 @@ def serialize_tag(tag):
 
 def index(request):
     posts = Post.objects \
-        .all() \
         .prefetch_related('author', Prefetch(
             'tags', queryset=Tag.objects.popular()
         ))
