@@ -56,7 +56,7 @@ def post_detail(request, slug):
         Post.objects.annotate(likes_count=Count('likes')),
         slug=slug
     )
-    comments = post.comments.prefetch_related('author').all()
+    comments = post.comments.prefetch_related('author')
     serialized_comments = []
     for comment in comments:
         serialized_comments.append({
